@@ -18,13 +18,14 @@ logging.basicConfig(filename=path.expanduser(LOG), format=FORMAT, level=logging.
 
 
 def handle_exception(exc_type, exc_value, exc_traceback):
-    if not issubclass(exc_type, KeyboardInterrupt):  # Keyboard interupt is common way how to end
+    if not issubclass(exc_type, KeyboardInterrupt):  # Keyboard interrupt is common way how to end
         logging.error('Uncaught exception', exc_info=(exc_type, exc_value, exc_traceback))
     sys.__excepthook__(exc_type, exc_value, exc_traceback)
 
 sys.excepthook = handle_exception
 
 WEB_URL_REGEX = r"""(?i)\b((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)/)(?:[^\s()<>{}\[\]]+|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’])|(?:(?<!@)[a-z0-9]+(?:[.\-][a-z0-9]+)*[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\b/?(?!@)))"""
+HEXCHAT_ICON = '/usr/share/icons/hicolor/scalable/apps/hexchat.svg'
 
 
 def find_url(text):
@@ -61,8 +62,7 @@ class HexChatNotificationService(dbus.service.Object):
         logging.info('New notification [%s | %s | %s]', network, channel, repr(str(nickname)))
         logging.debug('Message: "%s"', text)
         url = find_url(text)
-        notification = Notify.Notification.new(title, text,
-                                               '/usr/share/icons/hicolor/scalable/apps/hexchat.svg')
+        notification = Notify.Notification.new(title, text, HEXCHAT_ICON)
         notification.add_action('clicked_dismiss', 'Dismiss all', self.on_dismiss)
         if url:
             notification.add_action('clicked_follow', 'Follow link', self.on_follow, url)
@@ -71,9 +71,9 @@ class HexChatNotificationService(dbus.service.Object):
         notification.show()
 
         self.notifications.append(notification)
-        logging.debug('Notification list: %d', len(self.notifications))
         if len(self.notifications) > 10:
             del self.notifications[0]
+        logging.debug('Notification list: %d', len(self.notifications))
 
     @dbus.service.method(dbus_interface='com.skontar.HexChat', in_signature='', out_signature='')
     def quit(self):
@@ -92,7 +92,7 @@ class HexChatNotificationService(dbus.service.Object):
                                              object_path='/org/hexchat/Remote')
         interface = dbus.Interface(object=dbus_object, dbus_interface='org.hexchat.plugin')
         logging.debug('Reset icon')
-        interface.Command('TRAY -f /usr/share/icons/hicolor/scalable/apps/hexchat.svg')
+        interface.Command('TRAY -f {}'.format(HEXCHAT_ICON))
 
     def on_follow(self, notification, action_name, data):
         logging.info('Action: follow | %s', data)

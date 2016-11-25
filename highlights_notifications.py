@@ -6,6 +6,7 @@ IRC String Formatting: https://github.com/myano/jenni/wiki/IRC-String-Formatting
 """
 
 import logging
+import re
 import subprocess
 import sys
 import textwrap
@@ -18,6 +19,8 @@ __module_name__ = 'highlights_notifications'
 __module_description__ = 'Better notifications with actions'
 __module_version__ = '1.1'
 
+NOTIFICATION_SERVER = '/home/skontar/Repos/hexchat-plugins/notification_server.py'
+
 LOG = '~/highlights_notifications.log'
 FORMAT = '%(asctime)-24s %(levelname)-9s %(message)s'
 logging.basicConfig(filename=path.expanduser(LOG), format=FORMAT, level=logging.DEBUG)
@@ -27,12 +30,12 @@ def handle_exception(exc_type, exc_value, exc_traceback):
     logging.error('Uncaught exception', exc_info=(exc_type, exc_value, exc_traceback))
     sys.__excepthook__(exc_type, exc_value, exc_traceback)
 
-# Logging exceptions is useful but it prevents plugin from using brutal hack to exit
-# sys.excepthook = handle_exception
+sys.excepthook = handle_exception
+
 
 def server_start():
     logging.info('Starting server')
-    subprocess.Popen('python3 /home/skontar/Repos/hexchat-plugins/notification_server.py', shell=True)
+    subprocess.Popen('python3 {}'.format(NOTIFICATION_SERVER), shell=True)
 
 
 def get_dbus_interface():
@@ -61,6 +64,7 @@ def on_highlight_notification(word, word_eol, userdata):
     network = hexchat.get_info('network')
     channel = hexchat.get_info('channel')
     nickname = word[0]
+    nickname = re.sub(r'\x03\d+', '', nickname)  # Remove color
     text = word[1]
     message_type = userdata
 
@@ -115,9 +119,8 @@ def on_unload(userdata):
     except (AttributeError, dbus.exceptions.DBusException):
         logging.warning('Quit message to Notification Server failed')
         pass
-    # When interface is used at least once, unloading plugin hangs unless Exception is raised
-    logging.info('Raising Exception to quit the plugin')
-    raise Exception
+    logging.info('Explicitly quit')
+    exit(1)
 
 
 active_channel = None
