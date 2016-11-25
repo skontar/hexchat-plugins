@@ -52,7 +52,7 @@ def get_dbus_interface():
         return None
 
 
-def focus_tab(word, word_eol, userdata):
+def on_focus_tab(word, word_eol, userdata):
     global active_channel
     active_channel = hexchat.get_info('channel')
     logging.info('Changed active tab to %s', active_channel)
@@ -135,7 +135,7 @@ hexchat.prnt('{}, version {}'.format(__module_name__, __module_version__))
 logging.info('Setting common notifications to suspended')
 hexchat.command('set input_balloon_hilight 0')
 hexchat.command('set input_balloon_priv 0')
-hexchat.hook_print('Focus Tab', focus_tab)
+hexchat.hook_print('Focus Tab', on_focus_tab)
 hexchat.hook_unload(on_unload)
 hexchat.hook_print('Channel Action Hilight', on_highlight_notification, userdata='HLT')
 hexchat.hook_print('Channel Msg Hilight', on_highlight_notification, userdata='HLT')
