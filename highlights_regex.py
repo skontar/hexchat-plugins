@@ -38,6 +38,12 @@ REGEXES = {
             r'ping security',
         ],
     },
+    # For debugging
+    # r'.*': {
+    #     r'#.*': [
+    #         r'.*',
+    #     ],
+    # }
 }
 
 
