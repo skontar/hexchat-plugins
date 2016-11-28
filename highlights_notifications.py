@@ -118,7 +118,6 @@ def on_unload(userdata):
         interface.quit()
     except (AttributeError, dbus.exceptions.DBusException):
         logging.warning('Quit message to Notification Server failed')
-        pass
     logging.info('Explicitly quit')
     exit(1)
 
