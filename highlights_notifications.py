@@ -64,7 +64,7 @@ def on_highlight_notification(word, word_eol, userdata):
     network = hexchat.get_info('network')
     channel = hexchat.get_info('channel')
     nickname = word[0]
-    nickname = re.sub(r'\x03\d+', '', nickname)  # Remove color
+    nickname = re.sub(r'^\x03\d+', '', nickname)  # Remove color
     text = word[1]
     message_type = userdata
 
@@ -100,7 +100,7 @@ def on_highlight_notification(word, word_eol, userdata):
             logging.warning('DBus message to Notification Server fail')
             logging.warning('Notification fallback')
             hexchat.command('TRAY -b "{}" {}'.format(title, text))
-            interface = None
+            interface = get_dbus_interface()
 
     return hexchat.EAT_NONE
 
@@ -119,6 +119,12 @@ def on_unload(userdata):
     except (AttributeError, dbus.exceptions.DBusException):
         logging.warning('Quit message to Notification Server failed')
     logging.info('Explicitly quit')
+    # Unfortunately, this also kills whole HexChat, so the plugin cannot be restarted.
+    # However, I did not find a better way, as if the plugin used DBus interface it seems to hang
+    # on exit. Only other workaround I have found was to raise an Exception, but that stopped to
+    # work when I hooked `sys.excepthook`. I have tried to unhook it just before exit, but that did
+    # not work either. I find the proper Exception logging more useful than ability to restart
+    # plugin.
     exit(1)
 
 
