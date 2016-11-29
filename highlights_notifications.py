@@ -75,7 +75,7 @@ def on_highlight_notification(word, word_eol, userdata):
     logging.info('New notification [%s | %s | %s]', network, channel, repr(str(nickname)))
     logging.debug('Application details: [%s | %s]', win_status, active_channel)
     logging.debug('Message type: "%s"', message_type)
-    logging.debug('Message: "%s"', text)
+    logging.debug('Message: %s', repr(text))
 
     # Ignore notification if window is active and active channel is the one where message arrived
     if win_status == 'active' and channel == active_channel:
