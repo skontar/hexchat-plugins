@@ -9,7 +9,6 @@ import logging
 import re
 import subprocess
 import sys
-import textwrap
 from os import path
 
 import dbus
@@ -72,7 +71,6 @@ def on_highlight_notification(word, word_eol, userdata):
         title = 'Highlighted message from: {} ({})'.format(nickname, channel)
     else:
         title = 'Private message from: {} ({})'.format(nickname, network)
-    new_text = textwrap.fill(text, 60)
 
     logging.info('New notification [%s | %s | %s]', network, channel, repr(str(nickname)))
     logging.debug('Application details: [%s | %s]', win_status, active_channel)
@@ -95,7 +93,7 @@ def on_highlight_notification(word, word_eol, userdata):
     else:
         try:
             logging.info('Sending message to Notification Server through DBus')
-            interface.create_notification(nickname, network, channel, title, new_text, message_type)
+            interface.create_notification(nickname, network, channel, title, text, message_type)
         except dbus.exceptions.DBusException:
             logging.warning('DBus message to Notification Server fail')
             logging.warning('Notification fallback')

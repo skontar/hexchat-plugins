@@ -1,6 +1,7 @@
 import logging
 import re
 import subprocess
+import textwrap
 import webbrowser
 
 import dbus.service
@@ -80,7 +81,8 @@ class HexChatNotificationService(dbus.service.Object):
         url = find_url(text)
         if url:
             text = text.replace(url, '<u>' + url + '</u>')
-        notification = Notify.Notification.new(title, text, HEXCHAT_ICON)
+        new_text = textwrap.fill(text, 60)
+        notification = Notify.Notification.new(title, new_text, HEXCHAT_ICON)
         notification.add_action('clicked_dismiss', 'Dismiss all', self.on_dismiss)
         if url:
             notification.add_action('clicked_follow', 'Follow link', self.on_follow, url)
