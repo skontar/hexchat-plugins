@@ -23,7 +23,7 @@ REGEXES = {
             r'csaw',
         ],
         r'#prodsec-brno': [
-            r'(^|[^|_])lunch',  # 'lunch' but not as part of nickname
+            r'(^|[^|_-])lunch',  # 'lunch' but not as part of nickname
             r'nepal',
         ],
         r'#brno': [
@@ -33,9 +33,11 @@ REGEXES = {
             r'insights'
         ],
         r'#.*': [
+            r'anyone',
             r'\ball:',
             r'ping sbr-security',
-            r'ping security',
+            r'\bping security',  # ignore 'overlapping security'
+            r'skontar',  # in case my nick is skontar_ or something
         ],
     },
     # For debugging
