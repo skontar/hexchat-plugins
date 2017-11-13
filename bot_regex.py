@@ -6,13 +6,26 @@ HexChat Python Interface: http://hexchat.readthedocs.io/en/latest/script_python.
 IRC String Formatting: https://github.com/myano/jenni/wiki/IRC-String-Formatting
 """
 
+import logging
+from os import path
 import re
+import sys
 
 import hexchat
 
 __module_name__ = 'bot_regex'
 __module_description__ = 'Simple private bot'
 __module_version__ = '1.0'
+
+LOG = '~/bot_regex.log'
+FORMAT = '%(asctime)-24s %(levelname)-9s %(message)s'
+logging.basicConfig(filename=path.expanduser(LOG), format=FORMAT, level=logging.DEBUG)
+
+def handle_exception(exc_type, exc_value, exc_traceback):
+    logging.error('Uncaught exception', exc_info=(exc_type, exc_value, exc_traceback))
+    sys.__excepthook__(exc_type, exc_value, exc_traceback)
+
+sys.excepthook = handle_exception
 
 
 def on_case_expand(r):
@@ -23,7 +36,7 @@ def on_case_expand(r):
 REGEXES = {
     r'RedHat': {
         r'#sbr-security': [
-            (r'\[(\d{8})\]', on_case_expand),
+            (r'14(\d{8})', on_case_expand),
         ],
     },
 }
@@ -74,6 +87,7 @@ def check(network, channel, phrase):
                     for checked_phrase, callback in REGEXES[checked_network][checked_channel]:
                         r = re.search(checked_phrase, phrase, re.IGNORECASE)
                         if r:
+                            logging.info('Phrase: "{}"'.format(repr(phrase)))
                             callback(r)
 
 
