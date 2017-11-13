@@ -18,7 +18,7 @@ __module_version__ = '1.0'
 # Network | Channel | Phrase
 REGEXES = {
     r'RedHat': {
-        r'#-1day': [
+        r'#prodsec': [
             r'high[ -]?touch',
             r'csaw',
         ],
